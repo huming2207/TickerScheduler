@@ -1,22 +1,18 @@
+#include "TickerScheduler.hpp"
 #include <Arduino.h>
-#include "TickerScheduler.h"
 
-void tickerFlagHandle(volatile bool * flag)
-{
+void tickerFlagHandle(volatile bool *flag) {
     if (!*flag)
         *flag = true;
 }
 
-TickerScheduler::TickerScheduler(uint size)
-{
+TickerScheduler::TickerScheduler(uint8_t size) {
     this->items = new TickerSchedulerItem[size];
     this->size = size;
 }
 
-TickerScheduler::~TickerScheduler()
-{
-    for (uint i = 0; i < this->size; i++)
-    {
+TickerScheduler::~TickerScheduler() {
+    for (uint8_t i = 0; i < this->size; i++) {
         this->remove(i);
         yield();
     }
@@ -26,10 +22,8 @@ TickerScheduler::~TickerScheduler()
     this->size = 0;
 }
 
-void TickerScheduler::handleTicker(tscallback_t f, volatile bool * flag)
-{
-    if (*flag)
-    {
+void TickerScheduler::handleTicker(tscallback_t f, volatile bool *flag) {
+    if (*flag) {
         yield();
         *flag = false;
         yield();
@@ -38,8 +32,8 @@ void TickerScheduler::handleTicker(tscallback_t f, volatile bool * flag)
     }
 }
 
-boolean TickerScheduler::add(uint i, uint32_t period, tscallback_t f, boolean shouldFireNow)
-{
+bool TickerScheduler::add(uint8_t i, uint32_t period, tscallback_t f,
+                          bool shouldFireNow) {
     if (i >= this->size)
         return false;
 
@@ -54,8 +48,7 @@ boolean TickerScheduler::add(uint i, uint32_t period, tscallback_t f, boolean sh
     return true;
 }
 
-boolean TickerScheduler::remove(uint i)
-{
+bool TickerScheduler::remove(uint8_t i) {
     if (i >= this->size)
         return false;
 
@@ -70,13 +63,11 @@ boolean TickerScheduler::remove(uint i)
     return true;
 }
 
-void TickerScheduler::update()
-{
-    for (uint i = 0; i < this->size; i++)
-    {
+void TickerScheduler::update() {
+    for (uint8_t i = 0; i < this->size; i++) {
         if (this->items[i].is_used)
             handleTicker(this->items[i].cb, &this->items[i].flag);
-        
+
         yield();
     }
 }
